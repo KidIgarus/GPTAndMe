@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Map Editor</title>
+    <style>
+        #grid {
+            display: grid;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 1px solid black;
+            cursor: pointer;
+			background-size: cover;
+        }
+
+		.color-tile {
+			background-size: 350px 350px !important;
+			background-position-x: -15px;
+			background-position-y: -15px;
+		}
+
+        .tile {
+			position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border: 1px solid black;
+            margin: 0px 10px 20px;
+            cursor: pointer;
+            background-size: cover;
+        }
+		
+		.tile-label {
+			position: absolute;
+			bottom: -20px;
+		}
+		
+        .selected {
+            border: 2px solid red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <label for="rows">Rows: </label><input type="number" id="rows" value="13" min="1"><br>
+    <label for="columns">Columns: </label><input type="number" id="columns" value="39" min="1"><br>
+    <button onclick="createGrid()">Create Grid</button>
+
+    <h3>Color Tiles</h3>
+    <div id="colorTiles">
+        <!-- Tiles will be populated here from JSON -->
+    </div>
+	
+    <h3>Available Tiles</h3>
+    <div id="tiles">
+        <!-- Tiles will be populated here from JSON -->
+    </div>
+
+    <h3>Grid</h3>
+    <div id="grid"></div>
+
+    <script>
+
+		const colorTiles = {
+			"items": [
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Pure%20White__1--a.jpg"
+							}
+					},
+					"displayname": "Pure White",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Great%20White__1--a.jpg"
+							}
+					},
+					"displayname": "Great White",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Silver%20Shadow__1--a.jpg"
+							}
+					},
+					"displayname": "Silver Shadow",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Battleship__1--a.jpg"
+							}
+					},
+					"displayname": "Battleship",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Licorice__1--a.jpg"
+							}
+					},
+					"displayname": "Licorice",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20White%20Bread__1--a.jpg"
+							}
+					},
+					"displayname": "White Bread",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Champagne__1--a.jpg"
+							}
+					},
+					"displayname": "Champagne",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Beach%20Sand__1--a.jpg"
+							}
+					},
+					"displayname": "Beach Sand",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Putty__1--a.jpg"
+							}
+					},
+					"displayname": "Putty",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Mocha__1--a.jpg"
+							}
+					},
+					"displayname": "Mocha",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Espresso__1--a.jpg"
+							}
+					},
+					"displayname": "Espresso",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Cordovan__1--a.jpg"
+							}
+					},
+					"displayname": "Cordovan",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Light%20Lemon__1--a.jpg"
+							}
+					},
+					"displayname": "Light Lemon",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Egg%20Cream__1--a.jpg"
+							}
+					},
+					"displayname": "Egg Cream",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Lemon%20Scent__1--a.jpg"
+							}
+					},
+					"displayname": "Lemon Scent",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Sunflower__1--a.jpg"
+							}
+					},
+					"displayname": "Sunflower",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Maple__1--a.jpg"
+							}
+					},
+					"displayname": "Maple",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Sunset__1--a.jpg"
+							}
+					},
+					"displayname": "Sunset",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Watermelon__1--a.jpg"
+							}
+					},
+					"displayname": "Watermelon",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Cherry%20Tomato__1--a.jpg"
+							}
+					},
+					"displayname": "Cherry Tomato",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Radish__1--a.jpg"
+							}
+					},
+					"displayname": "Radish",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Brick%20Red__1--a.jpg"
+							}
+					},
+					"displayname": "Brick Red",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Peach%20Pie__1--a.jpg"
+							}
+					},
+					"displayname": "Peach Pie",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Bubble%20Gum__1--a.jpg"
+							}
+					},
+					"displayname": "Bubble Gum",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Pinot%20Noir__1--a.jpg"
+							}
+					},
+					"displayname": "Pinot Noir",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Plum__1--a.jpg"
+							}
+					},
+					"displayname": "Plum",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Igloo__1--a.jpg"
+							}
+					},
+					"displayname": "Igloo",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Frost__1--a.jpg"
+							}
+					},
+					"displayname": "Frost",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Lake%20Tahoe__1--a.jpg"
+							}
+					},
+					"displayname": "Lake Tahoe",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Ultramarine__1--a.jpg"
+							}
+					},
+					"displayname": "Ultramarine",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Midnight%20Blue__1--a.jpg"
+							}
+					},
+					"displayname": "Midnight Blue",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Blue%20Haze__1--a.jpg"
+							}
+					},
+					"displayname": "Blue Haze",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Real%20Teal__1--a.jpg"
+							}
+					},
+					"displayname": "Real Teal",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Kale__1--a.jpg"
+							}
+					},
+					"displayname": "Kale",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Viridian__1--a.jpg"
+							}
+					},
+					"displayname": "Viridian",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Aloe%20Vera__1--a.jpg"
+							}
+					},
+					"displayname": "Aloe Vera",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Peppermint__1--a.jpg"
+							}
+					},
+					"displayname": "Peppermint",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Kelp__1--a.jpg"
+							}
+					},
+					"displayname": "Kelp",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Jalapeno__1--a.jpg"
+							}
+					},
+					"displayname": "Jalapeno",
+				},
+				{
+					"image": {
+						"default": {
+								"altimagetext": "",
+								"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Lucky%20Green__1--a.jpg"
+							}
+					},
+					"displayname": "Lucky Green",
+				},
+				{
+					"image": {
+						"default": {
+							"altimagetext": "",
+							"url": "https://www.arto.com/site/item-images/Ceramic%20Glaze%20Color%20Guacamole__1--a.jpg"
+						}
+					},
+					"displayname": "Guacamole",
+				},
+			]
+		}
+	
+	    const tileData = {
+		"items": [
+		{
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR350B_default.jpg"
+                }
+            },
+            "displayname": "SR350B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR350A_default.jpg"
+                }
+            },
+            "displayname": "SR350A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR308B_default.jpg"
+                }
+            },
+            "displayname": "SR308B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR308A_default.jpg"
+                }
+            },
+            "displayname": "SR308A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR303C_default.jpg"
+                }
+            },
+            "displayname": "SR303C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR303B_default.jpg"
+                }
+            },
+            "displayname": "SR303B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR303A_default.jpg"
+                }
+            },
+            "displayname": "SR303A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR302C_default.jpg"
+                }
+            },
+            "displayname": "SR302C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR302BC_default.jpg"
+                }
+            },
+            "displayname": "SR302BC",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR302B_default.jpg"
+                }
+            },
+            "displayname": "SR302B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR302A_default.jpg"
+                }
+            },
+            "displayname": "SR302A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR301C_default.jpg"
+                }
+            },
+            "displayname": "SR301C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR301B_default.jpg"
+                }
+            },
+            "displayname": "SR301B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR301A_default.jpg"
+                }
+            },
+            "displayname": "SR301A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR300C_default.jpg"
+                }
+            },
+            "displayname": "SR300C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR300B_default.jpg"
+                }
+            },
+            "displayname": "SR300B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SR300A_default.jpg"
+                }
+            },
+            "displayname": "SR300A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ424HB_default.jpg"
+                }
+            },
+            "displayname": "SQ424HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ424HA_default.jpg"
+                }
+            },
+            "displayname": "SQ424HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ419HB_default.jpg"
+                }
+            },
+            "displayname": "SQ419HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ419HA_default.jpg"
+                }
+            },
+            "displayname": "SQ419HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ410HB_default.jpg"
+                }
+            },
+            "displayname": "SQ410HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ410HA_default.jpg"
+                }
+            },
+            "displayname": "SQ410HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ410C_default.jpg"
+                }
+            },
+            "displayname": "SQ410C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ400C_default.jpg"
+                }
+            },
+            "displayname": "SQ400C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ400B_default.jpg"
+                }
+            },
+            "displayname": "SQ400B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SQ400A_default.jpg"
+                }
+            },
+            "displayname": "SQ400A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD203HC_default.jpg"
+                }
+            },
+            "displayname": "SD203HC",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD203HB_default.jpg"
+                }
+            },
+            "displayname": "SD203HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD203HA_default.jpg"
+                }
+            },
+            "displayname": "SD203HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD174B_default.jpg"
+                }
+            },
+            "displayname": "SD174B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD174A_default.jpg"
+                }
+            },
+            "displayname": "SD174A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD165B_default.jpg"
+                }
+            },
+            "displayname": "SD165B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD165A_default.jpg"
+                }
+            },
+            "displayname": "SD165A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD147B_default.jpg"
+                }
+            },
+            "displayname": "SD147B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD147A_default.jpg"
+                }
+            },
+            "displayname": "SD147A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD126HB_default.jpg"
+                }
+            },
+            "displayname": "SD126HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD126HA_default.jpg"
+                }
+            },
+            "displayname": "SD126HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD126A_default.jpg"
+                }
+            },
+            "displayname": "SD126A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HF_default.jpg"
+                }
+            },
+            "displayname": "SD125HF",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HE_default.jpg"
+                }
+            },
+            "displayname": "SD125HE",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HD_default.jpg"
+                }
+            },
+            "displayname": "SD125HD",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HC_default.jpg"
+                }
+            },
+            "displayname": "SD125HC",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HB_default.jpg"
+                }
+            },
+            "displayname": "SD125HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD125HA_default.jpg"
+                }
+            },
+            "displayname": "SD125HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD124C_default.jpg"
+                }
+            },
+            "displayname": "SD124C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD124B_default.jpg"
+                }
+            },
+            "displayname": "SD124B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD124A_default.jpg"
+                }
+            },
+            "displayname": "SD124A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD119C_default.jpg"
+                }
+            },
+            "displayname": "SD119C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD119B_default.jpg"
+                }
+            },
+            "displayname": "SD119B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD119A_default.jpg"
+                }
+            },
+            "displayname": "SD119A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD118C_default.jpg"
+                }
+            },
+            "displayname": "SD118C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD118B_default.jpg"
+                }
+            },
+            "displayname": "SD118B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD118A_default.jpg"
+                }
+            },
+            "displayname": "SD118A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD117C_default.jpg"
+                }
+            },
+            "displayname": "SD117C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD117B_default.jpg"
+                }
+            },
+            "displayname": "SD117B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD117A_default.jpg"
+                }
+            },
+            "displayname": "SD117A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD116C_default.jpg"
+                }
+            },
+            "displayname": "SD116C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD116B_default.jpg"
+                }
+            },
+            "displayname": "SD116B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD116A_default.jpg"
+                }
+            },
+            "displayname": "SD116A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD115C_default.jpg"
+                }
+            },
+            "displayname": "SD115C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD115B_default.jpg"
+                }
+            },
+            "displayname": "SD115B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD115A_default.jpg"
+                }
+            },
+            "displayname": "SD115A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD114C_default.jpg"
+                }
+            },
+            "displayname": "SD114C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD114B_default.jpg"
+                }
+            },
+            "displayname": "SD114B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD114A_default.jpg"
+                }
+            },
+            "displayname": "SD114A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD113C_default.jpg"
+                }
+            },
+            "displayname": "SD113C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD113B_default.jpg"
+                }
+            },
+            "displayname": "SD113B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD113A_default.jpg"
+                }
+            },
+            "displayname": "SD113A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD112C_default.jpg"
+                }
+            },
+            "displayname": "SD112C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD112B_default.jpg"
+                }
+            },
+            "displayname": "SD112B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD112A_default.jpg"
+                }
+            },
+            "displayname": "SD112A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111HD_default.jpg"
+                }
+            },
+            "displayname": "SD111HD",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111HC_default.jpg"
+                }
+            },
+            "displayname": "SD111HC",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111HB_default.jpg"
+                }
+            },
+            "displayname": "SD111HB",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111HA_default.jpg"
+                }
+            },
+            "displayname": "SD111HA",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111C_default.jpg"
+                }
+            },
+            "displayname": "SD111C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111B_default.jpg"
+                }
+            },
+            "displayname": "SD111B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD111A_default.jpg"
+                }
+            },
+            "displayname": "SD111A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD110C_default.jpg"
+                }
+            },
+            "displayname": "SD110C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD110B_default.jpg"
+                }
+            },
+            "displayname": "SD110B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD110A_default.jpg"
+                }
+            },
+            "displayname": "SD110A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD109C_default.jpg"
+                }
+            },
+            "displayname": "SD109C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD109B_default.jpg"
+                }
+            },
+            "displayname": "SD109B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD109A_default.jpg"
+                }
+            },
+            "displayname": "SD109A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD108C_default.jpg"
+                }
+            },
+            "displayname": "SD108C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD108B_default.jpg"
+                }
+            },
+            "displayname": "SD108B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD108A_default.jpg"
+                }
+            },
+            "displayname": "SD108A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD107C_default.jpg"
+                }
+            },
+            "displayname": "SD107C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD107B_default.jpg"
+                }
+            },
+            "displayname": "SD107B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD107A_default.jpg"
+                }
+            },
+            "displayname": "SD107A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD106C_default.jpg"
+                }
+            },
+            "displayname": "SD106C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD106B_default.jpg"
+                }
+            },
+            "displayname": "SD106B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD106A_default.jpg"
+                }
+            },
+            "displayname": "SD106A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD105C_default.jpg"
+                }
+            },
+            "displayname": "SD105C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD105B_default.jpg"
+                }
+            },
+            "displayname": "SD105B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD105A_default.jpg"
+                }
+            },
+            "displayname": "SD105A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD104C_default.jpg"
+                }
+            },
+            "displayname": "SD104C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD104B_default.jpg"
+                }
+            },
+            "displayname": "SD104B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD104A_default.jpg"
+                }
+            },
+            "displayname": "SD104A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD103C_default.jpg"
+                }
+            },
+            "displayname": "SD103C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD103B_default.jpg"
+                }
+            },
+            "displayname": "SD103B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD103A_default.jpg"
+                }
+            },
+            "displayname": "SD103A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD102C_default.jpg"
+                }
+            },
+            "displayname": "SD102C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD102B_default.jpg"
+                }
+            },
+            "displayname": "SD102B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD102A_default.jpg"
+                }
+            },
+            "displayname": "SD102A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD101C_default.jpg"
+                }
+            },
+            "displayname": "SD101C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD101B_default.jpg"
+                }
+            },
+            "displayname": "SD101B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD101A_default.jpg"
+                }
+            },
+            "displayname": "SD101A",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD100C_default.jpg"
+                }
+            },
+            "displayname": "SD100C",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD100B_default.jpg"
+                }
+            },
+            "displayname": "SD100B",
+        },
+        {
+            "image": {
+                "default": {
+                    "altimagetext": "",
+                    "url": "https://www.arto.com/site/item-images/SD100A_default.jpg"
+                }
+            },
+            "displayname": "SD100A",
+        }
+    ]
+};
+	
+	
+	
+	
+	
+	
+	
+	
+/************
+
+
+
+*************/
+	
+        let selectedTile = null;
+		let selectedClass = null;
+        let isMouseDown = false;
+        let isRightClick = false;
+
+		function createGrid() {
+            const rows = document.getElementById('rows').value;
+            const columns = document.getElementById('columns').value;
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            grid.style.gridTemplateRows = `repeat(${rows}, 60px)`;
+            grid.style.gridTemplateColumns = `repeat(${columns}, 60px)`;
+
+            for (let i = 0; i < rows * columns; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onmousedown = () => {
+                    isMouseDown = true;
+                    fillCell(cell);
+                };
+                cell.onmouseover = () => {
+                    if (isMouseDown) fillCell(cell);
+                };
+                cell.onmouseup = () => isMouseDown = false;
+                cell.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    clearCell(cell);
+                };
+                grid.appendChild(cell);
+            }
+        }
+
+        function selectTile(tile, imageUrl) {
+            document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
+            tile.classList.add('selected');
+            selectedTile = imageUrl;
+			if (tile.classList.contains("color-tile"))
+				selectedClass = "color-tile";
+			else 
+				selectedClass = "";
+        }
+			
+		function fillCell(cell) {
+			const cellImage = cell.style.backgroundImage;
+			const selectedTileImage = `url("${selectedTile}")`;
+
+			if (selectedTile && !isRightClick) {
+				if (cellImage === selectedTileImage) {
+					rotateCell(cell);
+				} else {
+					if (selectedClass != "")
+					{
+						cell.classList.add("color-tile");
+					}
+					else 
+					{
+						cell.classList.remove("color-tile");
+					}
+					cell.style.backgroundImage = selectedTileImage;
+					cell.style.transform = ''; // Reset rotation when a new tile is placed
+				}
+			} else if (isRightClick) {
+				clearCell(cell);
+			}
+		}
+
+		function rotateCell(cell) {
+			const rotation = cell.style.transform ? parseInt(cell.style.transform.replace('rotate(', '').replace('deg)', '')) : 0;
+			const newRotation = (rotation + 90) % 360;
+			cell.style.transform = `rotate(${newRotation}deg)`;
+		}
+
+        function clearCell(cell) {
+			cell.classList.remove("color-tile");
+            cell.style.backgroundImage = '';
+        }
+
+        // Populate tiles from JSON data
+        const colorTilesDiv = document.getElementById('colorTiles');
+        const tilesDiv = document.getElementById('tiles');
+
+        colorTiles.items.forEach(item => {
+			console.log(item.displayname);
+            const tile = document.createElement('div');
+            tile.className = 'tile color-tile';
+            tile.style.backgroundImage = `url(${item.image.default.url})`;
+            tile.onclick = () => selectTile(tile, item.image.default.url);
+            colorTilesDiv.appendChild(tile);
+            
+            const label = document.createElement('div');
+            label.innerText = item.displayname;
+			label.className = 'tile-label';
+            tile.appendChild(label);
+        });
+		
+        tileData.items.forEach(item => {
+			console.log(item.displayname);
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.style.backgroundImage = `url(${item.image.default.url})`;
+            tile.onclick = () => selectTile(tile, item.image.default.url);
+            tilesDiv.appendChild(tile);
+            
+            const label = document.createElement('div');
+            label.innerText = item.displayname;
+			label.className = 'tile-label';
+            tile.appendChild(label);
+        });
+
+        // Prevent mouse down state when leaving the grid
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            isRightClick = false;
+        });
+
+        // Initialize grid
+        createGrid();
+    </script>
+</body>
+
+</html>
