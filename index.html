@@ -236,7 +236,7 @@
 			]
 		}
 	
-	    const tileData = {
+	    const patternTiles = {
 			"items": [
 				{
 					"image": "https://www.arto.com/site/item-images/SR350B_default.jpg",
@@ -688,12 +688,16 @@
 				}
 			]
 		};
+		
+		let allItems = colorTiles.items.concat(patternTiles.items);
+		tileData = { "items": allItems }
 	
         let selectedTile = null;
 		let selectedClass = null;
 		let selectedTileId = null;
         let isMouseDown = false;
         let isRightClick = false;
+		let colorTileCount = colorTiles.items.length;
 
 		function createGrid() {
             const rows = document.getElementById('rows').value;
@@ -721,15 +725,18 @@
                 grid.appendChild(cell);
             }
         }
+		
 		function selectTile(tile, tileId) {
 			document.querySelectorAll('.tile').forEach(t => t.classList.remove('selected'));
 			tile.classList.add('selected');
 			selectedTileId = tileId; // Store the selected tile id
+			
 			if (tile.classList.contains("color-tile"))
 				selectedClass = "color-tile";
 			else 
 				selectedClass = "";
 		}
+		
 		function fillCell(cell) {
 			const cellImageId = cell.getAttribute('data-tile-id');
 			if (selectedTileId !== null && !isRightClick) { // Updated the condition to check for null
@@ -753,18 +760,6 @@
 			updateURL(); // Update the URL each time a cell is filled
 		}
 		
-		/*
-		function updateURL() {
-			const cells = document.querySelectorAll('.cell');
-			let gridData = Array.from(cells).map(cell => cell.getAttribute('data-tile-id') || '').join(',');
-
-			const params = new URLSearchParams(window.location.search);
-			params.set('grid', gridData);
-
-			const title = '';
-			const newURL = window.location.pathname + '?' + params.toString();
-			window.history.pushState({}, title, newURL);
-		}*/
 		function updateURL() {
 			const cells = document.querySelectorAll('.cell');
 			let gridData = Array.from(cells).map(cell => {
@@ -796,13 +791,12 @@
         const colorTilesDiv = document.getElementById('colorTiles');
         const tilesDiv = document.getElementById('tiles');
 
-		let colorTileId = 0;
+		let tileId = 0;
         colorTiles.items.forEach(item => {
             const tile = document.createElement('div');
             tile.className = 'tile color-tile';
             tile.style.backgroundImage = `url(${item.image})`;
-            tile.setAttribute('data-tile-id', "ct" + colorTileId);
-			//tile.onclick = () => selectTile(tile, item.image);
+            tile.setAttribute('data-tile-id', tileId);
 			tile.onclick = () => selectTile(tile, tile.getAttribute('data-tile-id'));
 			
             colorTilesDiv.appendChild(tile);
@@ -812,11 +806,11 @@
 			label.className = 'tile-label';
             tile.appendChild(label);
 			
-			colorTileId++;
+			tileId++;
         });
 		
-		let tileId = 0;
-        tileData.items.forEach(item => {
+		//let tileId = 0;
+        patternTiles.items.forEach(item => {
 			console.log(item.displayname);
             const tile = document.createElement('div');
             tile.className = 'tile';
@@ -839,26 +833,6 @@
             isRightClick = false;
         });
 
-/*
-		function loadGridFromURL() {
-			const params = new URLSearchParams(window.location.search);
-			const gridData = params.get('grid');
-
-			if (gridData) {
-				const tileIds = gridData.split(',');
-				const cells = document.querySelectorAll('.cell');
-				cells.forEach((cell, index) => {
-					const tileIndex = parseInt(tileIds[index]); // Parse the index from the URL
-					if (!isNaN(tileIndex)) {
-						const tile = tileData.items[tileIndex];
-						cell.style.backgroundImage = `url(${tile.image})`;
-						cell.setAttribute('data-tile-id', tileIndex);
-					} else {
-						clearCell(cell);
-					}
-				});
-			}
-		}*/
 		function loadGridFromURL() {
 			const params = new URLSearchParams(window.location.search);
 			const gridData = params.get('grid');
@@ -877,6 +851,9 @@
 						if (rotationStr) {
 							cell.style.transform = `rotate(${rotationStr}deg)`;
 						}
+						if (tileIndex < colorTileCount) {
+							cell.classList.add("color-tile");
+						}
 					} else {
 						clearCell(cell);
 					}
@@ -884,11 +861,8 @@
 			}
 		}
 
-
-        // Initialize grid
         createGrid();
 		loadGridFromURL();
     </script>
 </body>
-
 </html>
