@@ -65,6 +65,15 @@
     <h3>Grid</h3>
     <div id="grid"></div>
 
+	<h3>Tile Counts</h3>
+	<table id="tileCounts">
+		<tr>
+			<th>Tile</th>
+			<th>Count</th>
+		</tr>
+		<!-- Rows will be populated dynamically -->
+	</table>
+
     <script>
 
 		const colorTiles = {
@@ -760,6 +769,33 @@
 			updateURL(); // Update the URL each time a cell is filled
 		}
 		
+		function updateTileCounts() {
+			const cells = document.querySelectorAll('.cell');
+			const counts = {};
+
+			cells.forEach(cell => {
+				const tileId = cell.getAttribute('data-tile-id');
+				if (tileId !== null) {
+					counts[tileId] = (counts[tileId] || 0) + 1;
+				}
+			});
+
+			const table = document.getElementById('tileCounts');
+			table.innerHTML = `<tr><th>Tile</th><th>Count</th></tr>`;
+
+			Object.keys(counts).forEach(tileId => {
+				const count = counts[tileId];
+				const tile = tileData.items[tileId];
+				if (tile) {
+					const row = document.createElement('tr');
+					row.innerHTML = `
+						<td>${tile.displayname}</td>
+						<td>${count}</td>`;
+					table.appendChild(row);
+				}
+			});
+		}
+
 		function updateURL() {
 			const cells = document.querySelectorAll('.cell');
 			let gridData = Array.from(cells).map(cell => {
@@ -774,6 +810,7 @@
 			const title = '';
 			const newURL = window.location.pathname + '?' + params.toString();
 			window.history.pushState({}, title, newURL);
+			updateTileCounts(); // Update the tile counts after updating the URL
 		}
 
 		function rotateCell(cell) {
@@ -784,7 +821,10 @@
 
         function clearCell(cell) {
 			cell.classList.remove("color-tile");
+			cell.setAttribute('data-tile-id', ''); 
             cell.style.backgroundImage = '';
+			cell.style.transform = '';
+			updateURL(); 
         }
 
         // Populate tiles from JSON data
@@ -858,6 +898,8 @@
 						clearCell(cell);
 					}
 				});
+				
+				updateTileCounts(); // Update the tile counts after updating the URL
 			}
 		}
 
